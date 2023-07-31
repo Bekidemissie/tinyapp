@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Bekidemissie/tinyapp/issues"
   },
-  "homepage": "https://github.com/Bekidemissie/tinyapp#readme"
+  "homepage": "https://github.com/Bekidemissie/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
