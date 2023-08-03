@@ -57,7 +57,13 @@
               <td><%= urls[id] %></td>
            <td>  <form method="get" action="/urls/<%= id%>/delete">
             <button type="submit">delete</button> 
-           </form> </td>
+           <form> 
+           <form method="get" action="/urls/<%= id%>/update">
+            <button type="submit">update</button> 
+           </form> 
+          
+          
+          </td>
             </tr>
           <% } %>
         </tbody>
