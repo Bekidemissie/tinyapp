@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+      crossorigin="anonymous"
+    />
+ <body>
+
+ <%- include('partials/_header') %>
+
+  <h1> Registration form </h1>
+<form action="/registration" method="post">
+    
+    <<div id="loginContainer">
+     
+      <label id="username"><b>Email Adress</b></label> </br> 
+      <input type="text" id="username" placeholder="Enter Email"> </br> 
+      <label id="password"><b>password</b></label> </br> 
+      <input type="password" id="password" placeholder="Password"> </br> 
+      
+      <button type="submit">rigistor</button> </br> 
+  </div>
+  
+      
+  </form>
+</body>
