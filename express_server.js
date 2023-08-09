@@ -57,8 +57,10 @@ app.get("/urls/:id", (req, res) => {
 
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("/urls/:id"); // Respond with 'Ok' (we will replace this)
+  const longURL =req.body.longURL;
+  console.log(longURL);   // Log the POST request body to the console
+      
+  res.send(longURL); // Respond with 'Ok' (we will replace this)
 });
 app.get("/u/:id", (req, res) => {
   // console.log(req.body , "number 1");
