@@ -76,9 +76,7 @@ const newLongURL = req.body.longURL;
 
 });
 app.get("/u/:id", (req, res) => {
-  // console.log(req.body , "number 1")
-  // console.log(req.query , "number 2");
-  // console.log(req.params.id , "number 3");
+ 
   let userID = req.params.id;
   let longURL = urlDatabase[userID];
   console.log(longURL, "number 4");
@@ -87,7 +85,9 @@ app.get("/u/:id", (req, res) => {
  // deleteing URL
 app.get("/urls/:id/delete", (req, res) => {
 const id =   req.params.id;
-delete urlDatabase.id;
-res.json("the file succfully deleted");
+delete urlDatabase[id];
+res.redirect("/urls");
+//res.json("the file succfully deleted");
+
 
   });
