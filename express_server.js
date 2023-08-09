@@ -49,7 +49,8 @@ app.get("/urls/new", (req, res) => {
 
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: "http://www.lighthouselabs.ca" };
+  let userID = req.params.id;
+  const templateVars = { id: userID, longURL: urlDatabase[userID]};
   res.render("urls_show", templateVars);
 })
 
