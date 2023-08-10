@@ -94,19 +94,15 @@ res.redirect("/urls");
 
   });
 
-
+  // update longURL
  app.post("/urls/:id/update", (req, res) => {
   const EditURL =   req.body.longURL;
   const id =   req.params.id;
   urlDatabase[id] = EditURL
- 
-  
   res.redirect("/urls");
- 
-  
-  
+
     });
- // update the longUrl
+ // Edit Long URL
  app.post("/url/:id/edit" , (req, res) => {
   const id =   req.params.id;
   longURL = urlDatabase[id]
