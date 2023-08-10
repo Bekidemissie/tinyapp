@@ -68,6 +68,8 @@ app.get("/urls/:id", (req, res) => {
 
 
 
+
+
 app.post("/urls", (req, res) => {
 const newLongURL = req.body.longURL;
  const id = generateRandomString();
@@ -83,7 +85,7 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
  // deleteing URL
-app.get("/urls/:id/delete", (req, res) => {
+app.post("/urls/:id/delete", (req, res) => {
 const id =   req.params.id;
 delete urlDatabase[id];
 res.redirect("/urls");
@@ -91,3 +93,26 @@ res.redirect("/urls");
 
 
   });
+
+
+ app.post("/urls/:id/update", (req, res) => {
+  const EditURL =   req.body.longURL;
+  const id =   req.params.id;
+  urlDatabase[id] = EditURL
+ 
+  
+  res.redirect("/urls");
+ 
+  
+  
+    });
+ // update the longUrl
+ app.post("/url/:id/edit" , (req, res) => {
+  const id =   req.params.id;
+  longURL = urlDatabase[id]
+  
+  res.redirect(`/urls/${id}`);
+});
+
+
+
