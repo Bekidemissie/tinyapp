@@ -1,8 +1,11 @@
 const express = require("express");
+
 const app = express();
 const PORT = 8080; // default port 808
+
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+
 var cookieParser = require('cookie-parser')
 function generateRandomString()  {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -22,6 +25,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// database for user 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
 app.get("/", (req, res) => {
   res.send("Hello Bereket!");
 });
@@ -109,6 +125,41 @@ res.redirect("/urls");
   
   res.redirect(`/urls/${id}`);
 });
+ //registration
+ app.get("/register", (req, res) => {
+  res.render("user_registration");
+});
 
+//post registration 
 
+app.post( "/register", (req, res) => {
+  const email = req.body.username;
+  const password = req.body.password;
+  for (const userId in users) {
+    if (users.hasOwnProperty(userId)) {
+      if (users[userId].email === email) {
+        res.status(400).send("Email already exists. Registration failed.");
+     
+      }
+    }
+  }
+if(email === null || email === "  " || password === null || password === " "){
+
+    res.status(400).send("there is no input") 
+  }
+  
+   let newuserID = generateRandomString();
+   const  newuser ={
+    id: newuserID,
+    email: email,
+    password: password,
+}
+users[newuserID] = newuser;
+
+res.status(200).send("succfull registore ") 
+  //   res.render("user_registration");
+  
+  // res.render("user_registration");
+  
+});
 
