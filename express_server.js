@@ -143,11 +143,12 @@ app.post( "/register", (req, res) => {
       }
     }
   }
+  // 
 if(email === null || email === "  " || password === null || password === " "){
 
     res.status(400).send("there is no input") 
   }
-  
+  // creating new user;
    let newuserID = generateRandomString();
    const  newuser ={
     id: newuserID,
@@ -163,3 +164,26 @@ res.status(200).send("succfull registore ")
   
 });
 
+// login
+app.get("/login", (req, res) => {
+  res.render("urls_login");
+});
+
+app.post("/login", (req, res) => {
+ let email = req.body.username;
+ let password = req.body.password;
+ 
+ for ( let key in users)
+
+ if(users[key].email === email && users[key].password === password)
+
+{
+   
+  res.redirect("/urls");
+
+}
+
+ res.send("the user or password is not correct")
+
+
+});
