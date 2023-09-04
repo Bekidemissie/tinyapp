@@ -6,7 +6,8 @@ const PORT = 8080; // default port 808
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
 function generateRandomString()  {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
@@ -62,6 +63,9 @@ app.get("/fetch", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
+ 
+ 
+
   res.render("urls_index", templateVars);
 });
 
@@ -71,7 +75,11 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    user: users[req.cookies.user_id] 
+  }
+    
+  res.render("urls_new" , templateVars);
 });
 
 
@@ -90,6 +98,8 @@ app.post("/urls", (req, res) => {
 const newLongURL = req.body.longURL;
  const id = generateRandomString();
  urlDatabase[id] = newLongURL;
+ 
+const user = users[req.cookies.user_id];
  res.redirect(`/urls/${id}`);
 
 });
@@ -127,7 +137,10 @@ res.redirect("/urls");
 });
  //registration
  app.get("/register", (req, res) => {
-  res.render("user_registration");
+  const templateVars = {
+    user: users[req.cookies.user_id]
+  };
+  res.render("user_registration", templateVars);
 });
 
 //post registration 
@@ -137,8 +150,9 @@ app.post( "/register", (req, res) => {
   const password = req.body.password;
   for (const userId in users) {
     if (users.hasOwnProperty(userId)) {
+
       if (users[userId].email === email) {
-        res.status(400).send("Email already exists. Registration failed.");
+     return   res.status(400).send("Email already exists. Registration failed.");
      
       }
     }
@@ -146,7 +160,7 @@ app.post( "/register", (req, res) => {
   // 
 if(email === null || email === "  " || password === null || password === " "){
 
-    res.status(400).send("there is no input") 
+   return res.status(400).send("there is no input") 
   }
   // creating new user;
    let newuserID = generateRandomString();
@@ -166,24 +180,49 @@ res.status(200).send("succfull registore ")
 
 // login
 app.get("/login", (req, res) => {
-  res.render("urls_login");
+  const templateVars = {
+    user: users[req.cookies.user_id]
+  };
+  res.render("urls_login", templateVars);
 });
 
 app.post("/login", (req, res) => {
- let email = req.body.username;
- let password = req.body.password;
- 
- for ( let key in users)
+  const email = req.body.username;
+  const password = req.body.password;
 
- if(users[key].email === email && users[key].password === password)
+  if (!email || !password) {
+    return res.status(400).send("Missing email or password");
+  }
 
-{
-   
-  res.redirect("/urls");
-
-}
-
- res.send("the user or password is not correct")
-
-
+  const user = Object.values(users).find(user => user.email === email);
+  
+  if (user && user.password === password) {
+    res.cookie('user_id', user.id);
+    return res.redirect("/urls");
+  }
+  
+  return res.status(401).send("Invalid login credentials");
 });
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("user_id");
+  res.redirect("/urls");
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
