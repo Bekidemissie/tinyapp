@@ -1,5 +1,6 @@
 const express = require("express");
-
+const bcrypt = require("bcryptjs");
+const saltRounds = 10;
 const app = express();
 const PORT = 8080; // default port 808
 
@@ -145,39 +146,34 @@ res.redirect("/urls");
 
 //post registration 
 
-app.post( "/register", (req, res) => {
+app.post("/register", (req, res) => {
   const email = req.body.username;
   const password = req.body.password;
-  for (const userId in users) {
-    if (users.hasOwnProperty(userId)) {
-
-      if (users[userId].email === email) {
-     return   res.status(400).send("Email already exists. Registration failed.");
-     
-      }
-    }
-  }
-  // 
-if(email === null || email === "  " || password === null || password === " "){
-
-   return res.status(400).send("there is no input") 
-  }
-  // creating new user;
-   let newuserID = generateRandomString();
-   const  newuser ={
-    id: newuserID,
-    email: email,
-    password: password,
-}
-users[newuserID] = newuser;
-
-res.status(200).send("succfull registore ") 
-  //   res.render("user_registration");
   
-  // res.render("user_registration");
+  if (!email || !password) {
+    return res.status(400).send("Missing email or password");
+  }
+
+  const userExists = Object.values(users).some(user => user.email === email);
   
+  if (userExists) {
+    return res.status(400).send("Email already exists. Registration failed.");
+  }
+
+  // Hash the password
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  
+  const newUserID = generateRandomString();
+  users[newUserID] = {
+    id: newUserID,
+    email,
+    password: hashedPassword // Store the hash, not the plain-text password
+  };
+ res.redirect("/urls/new");
+ // return res.status(200).send("succsfull reistration ") 
+  //res.cookie('user_id', newUserID);
+
 });
-
 // login
 app.get("/login", (req, res) => {
   const templateVars = {
@@ -196,12 +192,22 @@ app.post("/login", (req, res) => {
 
   const user = Object.values(users).find(user => user.email === email);
   
-  if (user && user.password === password) {
-    res.cookie('user_id', user.id);
-    return res.redirect("/urls");
+  if (!user) {
+    return res.status(401).send("Invalid login credentials");
   }
-  
-  return res.status(401).send("Invalid login credentials");
+
+  bcrypt.compare(password, user.password, function(err, result) {
+    if (err) {
+      return res.status(500).send("Error comparing passwords");
+    }
+    
+    if (result) {
+      res.cookie('user_id', user.id);
+      return res.redirect("/urls");
+    } else {
+      return res.status(401).send("Invalid login credentials");
+    }
+  });
 });
 
 app.post("/logout", (req, res) => {
