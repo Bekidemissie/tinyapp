@@ -75,31 +75,43 @@ app.get("/fetch", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  const userId = req.cookies['user_id'];
   const templateVars = { urls: urlDatabase };
+  if (users[userId]){
+     res.render("urls_index", templateVars);
+    }
+else{
+  res.send("<html><body>Please login frist before access </b></body></html>\n");
+}
 
-
-
-  res.render("urls_index", templateVars);
-});
-
-app.get("/hello", (req, res) => {
-  const templateVars = { greeting: "Hello World!" };
-  res.render("hello_world", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
+  const userId = req.cookies['user_id'];
   const templateVars = {
     user: users[req.cookies.user_id]
   }
-
-  res.render("urls_new", templateVars);
+  if (users[userId]){
+ res.render("urls_new", templateVars);
+  }
+  else
+  {
+    res.redirect("/login");
+  }
 });
 
 
 app.get("/urls/:id", (req, res) => {
   let userID = req.params.id;
   const templateVars = { id: userID, longURL: urlDatabase[userID] };
+  const userId = req.cookies['user_id'];
+  if (users[userId]){
   res.render("urls_show", templateVars);
+  }
+  else
+  {
+    res.send("<html><body>Please login frist before access </b></body></html>\n"); 
+  }
 })
 
 
