@@ -129,10 +129,15 @@ app.post("/urls", (req, res) => {
 
 });
 app.get("/u/:id", (req, res) => {
+  const shortURL = req.params.id;
+  
+  if (!urlDatabase[shortURL]) {
+    // If the short URL doesn't exist in the database, return an error message
+    return res.status(404).send("Short URL not found");
+  }
 
-  let userID = req.params.id;
-  let longURL = urlDatabase[userID];
-  console.log(longURL, "number 4");
+  // If the short URL exists, perform the redirect
+  const longURL = urlDatabase[shortURL];
   res.redirect(longURL);
 });
 // deleteing URL
