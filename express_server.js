@@ -64,8 +64,9 @@ app.get("/urls.json", (req, res) => {
 });
 app.get("/urls", (req, res) => {
   const userId = req.cookies['user_id'];
-  const templateVars = { urls: urlDatabase };
+ 
   if (users[userId]){
+    const templateVars = { urls: urlDatabase , user: users[userId]};
      res.render("urls_index", templateVars);
     }
 else{
@@ -90,10 +91,11 @@ app.get("/urls/new", (req, res) => {
 
 
 app.get("/urls/:id", (req, res) => {
-  let userID = req.params.id;
-  const templateVars = { id: userID, longURL: urlDatabase[userID] };
+  let urlID = req.params.id;
+ 
   const userId = req.cookies['user_id'];
   if (users[userId]){
+  const templateVars = { id: urlID, longURL: urlDatabase[urlID] , user:users[userId] };
   res.render("urls_show", templateVars);
   }
   else
