@@ -1,6 +1,9 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const saltRounds = 10;
+
+const hashedPassword1 = bcrypt.hashSync("purple-monkey-dinosaur", 10);
+const hashedPassword2 = bcrypt.hashSync("dishwasher-funk", 10);
 const app = express();
 const PORT = 8080; // default port 808
 
@@ -32,12 +35,12 @@ const users = {
   userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    password: hashedPassword1,
   },
   user2RandomID: {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk",
+    password:hashedPassword2,
   },
 };
 app.get("/", (req, res) => {
@@ -162,7 +165,7 @@ app.post("/register", (req, res) => {
 
   // Hash the password
   const hashedPassword = bcrypt.hashSync(password, 10);
-  
+  1
   const newUserID = generateRandomString();
   users[newUserID] = {
     id: newUserID,
@@ -170,7 +173,7 @@ app.post("/register", (req, res) => {
     password: hashedPassword // Store the hash, not the plain-text password
   };
  res.redirect("/urls/new");
- // return res.status(200).send("succsfull reistration ") 
+  return res.status(200).send("succsfull reistration ") 
   //res.cookie('user_id', newUserID);
 
 });
@@ -186,29 +189,25 @@ app.post("/login", (req, res) => {
   const email = req.body.username;
   const password = req.body.password;
 
-  if (!email || !password) {
-    return res.status(400).send("Missing email or password");
+  let foundUser;
+
+  for (const userId in users) {
+    if (users[userId].email === email) {
+      foundUser = users[userId];
+      break;
+    }
   }
 
-  const user = Object.values(users).find(user => user.email === email);
-  
-  if (!user) {
+  if (!foundUser || !bcrypt.compareSync(password, foundUser.password)) {
     return res.status(401).send("Invalid login credentials");
   }
 
-  bcrypt.compare(password, user.password, function(err, result) {
-    if (err) {
-      return res.status(500).send("Error comparing passwords");
-    }
-    
-    if (result) {
-      res.cookie('user_id', user.id);
-      return res.redirect("/urls");
-    } else {
-      return res.status(401).send("Invalid login credentials");
-    }
-  });
+  // Login successful: Set cookie and redirect
+  res.cookie('user_id', foundUser.id);
+  res.redirect("/urls");
 });
+
+
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
