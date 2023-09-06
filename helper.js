@@ -10,5 +10,9 @@ function generateRandomString() {
   
     return result;
   }
-
-  //module.exports = { generateRandomString};
+  const isAuthenticated = (req, users) => {
+    const userId = req.cookies['user_id'];
+    return users[userId] ? userId : null;
+  };
+  
+  module.exports = { generateRandomString , isAuthenticated};

@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const { urlDatabase, users } = require("./localdatabase.js");
-const { generateRandomString } = require("./helper.js");
+const { generateRandomString , isAuthenticated } = require("./helper.js");
 const app = express();
 const PORT = 8080; // default port 808
 app.set("view engine", "ejs");
@@ -23,15 +23,15 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 app.get("/urls", (req, res) => {
-  const userId = req.cookies['user_id'];
-  if (users[userId]) {
+  const userId = isAuthenticated(req, users);
+  if (userId) {
     const templateVars = { urls: urlDatabase, user: users[userId] };
     res.render("urls_index", templateVars);
   }
   else {
     res.send("<html><body>Please login frist before access </b></body></html>\n");
   }
-});
+1});
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies['user_id'];
   const templateVars = {
@@ -46,9 +46,8 @@ app.get("/urls/new", (req, res) => {
 });
 app.get("/urls/:id", (req, res) => {
   let urlID = req.params.id;
-
-  const userId = req.cookies['user_id'];
-  if (users[userId]) {
+  const userId = isAuthenticated(req, users);
+  if (userId) {
     const templateVars = { id: urlID, longURL: urlDatabase[urlID], user: users[userId] };
     res.render("urls_show", templateVars);
   }
