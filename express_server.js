@@ -1,7 +1,6 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
 const { urlDatabase, users } = require("./localdatabase.js");
-const { generateRandomString, isAuthenticated, verifyUser, findUserByEmail , registerUser } = require("./helper.js");
+const { generateRandomString, isAuthenticated, verifyUser, registerUser } = require("./helper.js");
 const app = express();
 const PORT = 8080; // default port 808
 app.set("view engine", "ejs");
@@ -46,10 +45,14 @@ app.get("/urls/new", (req, res) => {
   }
 });
 app.get("/urls/:id", (req, res) => {
-  let urlID = req.params.id;
+  const shortURL = req.params.id;
+  if (!urlDatabase[shortURL]) {
+    // If the short URL doesn't exist in the database, return an error message
+    return res.status(404).send("Short URL not found");
+  }
   const userId = isAuthenticated(req, users);
   if (userId) {
-    const templateVars = { id: urlID, longURL: urlDatabase[urlID], user: users[userId] };
+    const templateVars = { id: urlID, longURL: urlDatabase[shortURL], user: users[userId] };
     res.render("urls_show", templateVars);
   }
   else {
@@ -81,11 +84,7 @@ app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
   delete urlDatabase[id];
   res.redirect("/urls");
-  //res.json("the file succfully deleted");
-
-
 });
-
 // update longURL
 app.post("/urls/:id/update", (req, res) => {
   const EditURL = req.body.longURL;
@@ -108,9 +107,7 @@ app.get("/register", (req, res) => {
   };
   res.render("user_registration", templateVars);
 });
-
 //post registration 
-
 app.post("/register", (req, res) => {
   const email = req.body.username;
   const password = req.body.password;
@@ -145,9 +142,6 @@ app.post("/login", (req, res) => {
     return res.status(401).send("Invalid login credentials");
   }
 })
-
-
-
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/urls");

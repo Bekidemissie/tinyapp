@@ -52,4 +52,4 @@ function generateRandomString() {
     
     return { status: 200, userId: newUserID };
   };
-  module.exports = { generateRandomString , isAuthenticated ,  verifyUser ,  findUserByEmail,registerUser};
+  module.exports = { generateRandomString , isAuthenticated ,  verifyUser ,registerUser};
