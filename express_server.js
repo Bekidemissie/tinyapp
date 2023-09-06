@@ -1,12 +1,8 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-
-
-const hashedPassword1 = bcrypt.hashSync("purple-monkey-dinosaur", 10);
-const hashedPassword2 = bcrypt.hashSync("dishwasher-funk", 10);
+const { urlDatabase, users } = require("./localdatabase.js");
 const app = express();
 const PORT = 8080; // default port 808
-
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 var cookieParser = require('cookie-parser');
@@ -23,25 +19,6 @@ function generateRandomString() {
 
   return result;
 }
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
-
-// database for user 
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: hashedPassword1,
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: hashedPassword2,
-  },
-};
-
 app.get("/", (req, res) => {
   const userId = req.cookies['user_id'];
 
@@ -54,61 +31,43 @@ app.get("/", (req, res) => {
     res.redirect("/login");
   }
 });
-
-
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 app.get("/urls", (req, res) => {
   const userId = req.cookies['user_id'];
- 
-  if (users[userId]){
-    const templateVars = { urls: urlDatabase , user: users[userId]};
-     res.render("urls_index", templateVars);
-    }
-else{
-  res.send("<html><body>Please login frist before access </b></body></html>\n");
-}
-
+  if (users[userId]) {
+    const templateVars = { urls: urlDatabase, user: users[userId] };
+    res.render("urls_index", templateVars);
+  }
+  else {
+    res.send("<html><body>Please login frist before access </b></body></html>\n");
+  }
 });
-
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies['user_id'];
   const templateVars = {
     user: users[req.cookies.user_id]
   }
-  if (users[userId]){
- res.render("urls_new", templateVars);
+  if (users[userId]) {
+    res.render("urls_new", templateVars);
   }
-  else
-  {
+  else {
     res.redirect("/login");
   }
 });
-
-
 app.get("/urls/:id", (req, res) => {
   let urlID = req.params.id;
- 
+
   const userId = req.cookies['user_id'];
-  if (users[userId]){
-  const templateVars = { id: urlID, longURL: urlDatabase[urlID] , user:users[userId] };
-  res.render("urls_show", templateVars);
+  if (users[userId]) {
+    const templateVars = { id: urlID, longURL: urlDatabase[urlID], user: users[userId] };
+    res.render("urls_show", templateVars);
   }
-  else
-  {
-    res.send("<html><body>Please login frist before access </b></body></html>\n"); 
+  else {
+    res.send("<html><body>Please login frist before access </b></body></html>\n");
   }
 })
-
-
-
-
-
-
 app.post("/urls", (req, res) => {
   const newLongURL = req.body.longURL;
   const id = generateRandomString();
@@ -120,7 +79,7 @@ app.post("/urls", (req, res) => {
 });
 app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
-  
+
   if (!urlDatabase[shortURL]) {
     // If the short URL doesn't exist in the database, return an error message
     return res.status(404).send("Short URL not found");
@@ -181,7 +140,6 @@ app.post("/register", (req, res) => {
 
   // Hash the password
   const hashedPassword = bcrypt.hashSync(password, 10);
-  1
   const newUserID = generateRandomString();
   users[newUserID] = {
     id: newUserID,
@@ -189,7 +147,7 @@ app.post("/register", (req, res) => {
     password: hashedPassword // Store the hash, not the plain-text password
   };
   res.redirect("/urls/new");
-  return res.status(200).send("succsfull reistration ")
+  // return res.status(200).send("succsfull reistration ")
   //res.cookie('user_id', newUserID);
 
 });
@@ -234,7 +192,9 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
-
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
 
 
 
