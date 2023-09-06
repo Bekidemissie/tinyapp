@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const { urlDatabase, users } = require("./localdatabase.js");
-const { generateRandomString , isAuthenticated,  verifyUser, findUserByEmail } = require("./helper.js");
+const { generateRandomString, isAuthenticated, verifyUser, findUserByEmail , registerUser } = require("./helper.js");
 const app = express();
 const PORT = 8080; // default port 808
 app.set("view engine", "ejs");
@@ -10,7 +10,7 @@ var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 app.get("/", (req, res) => {
   const userId = req.cookies['user_id'];
-    // Check if user is logged in
+  // Check if user is logged in
   if (users[userId]) {
     // User is logged in, redirect to /urls
     res.redirect("/urls");
@@ -31,7 +31,8 @@ app.get("/urls", (req, res) => {
   else {
     res.send("<html><body>Please login frist before access </b></body></html>\n");
   }
-1});
+  1
+});
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies['user_id'];
   const templateVars = {
@@ -113,29 +114,15 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.username;
   const password = req.body.password;
-
-  if (!email || !password) {
-    return res.status(400).send("Missing email or password");
+  
+  const { status, userId, msg } = registerUser(email, password, users);
+  
+  if (status === 200) {
+    res.cookie('user_id', userId);
+    res.redirect("/urls");
+  } else {
+    res.status(status).send(msg);
   }
-
-  const userExists = Object.values(users).some(user => user.email === email);
-
-  if (userExists) {
-    return res.status(400).send("Email already exists. Registration failed.");
-  }
-
-  // Hash the password
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  const newUserID = generateRandomString();
-  users[newUserID] = {
-    id: newUserID,
-    email,
-    password: hashedPassword // Store the hash, not the plain-text password
-  };
-  res.redirect("/urls/new");
-  // return res.status(200).send("succsfull reistration ")
-  //res.cookie('user_id', newUserID);
-
 });
 // login
 app.get("/login", (req, res) => {
@@ -150,7 +137,7 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
 
   const userId = verifyUser(email, password, users);
-  
+
   if (userId) {
     res.cookie('user_id', userId);
     res.redirect("/urls");

@@ -30,5 +30,26 @@ function generateRandomString() {
     }
     return null;
   };
+  // creating new user
+  const registerUser = (email, password, users) => {
+    if (!email || !password) {
+      return { status: 400, msg: "Missing email or password" };
+    }
   
-  module.exports = { generateRandomString , isAuthenticated ,  verifyUser ,  findUserByEmail};
+    if (findUserByEmail(email, users)) {
+      return { status: 400, msg: "Email already exists. Registration failed." };
+    }
+  
+    // Hash the password
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    const newUserID = generateRandomString();
+    
+    users[newUserID] = {
+      id: newUserID,
+      email,
+      password: hashedPassword
+    };
+    
+    return { status: 200, userId: newUserID };
+  };
+  module.exports = { generateRandomString , isAuthenticated ,  verifyUser ,  findUserByEmail,registerUser};
