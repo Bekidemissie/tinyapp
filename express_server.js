@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const { urlDatabase, users } = require("./localdatabase.js");
-const { generateRandomString , isAuthenticated } = require("./helper.js");
+const { generateRandomString , isAuthenticated,  verifyUser, findUserByEmail } = require("./helper.js");
 const app = express();
 const PORT = 8080; // default port 808
 app.set("view engine", "ejs");
@@ -71,7 +71,6 @@ app.get("/u/:id", (req, res) => {
     // If the short URL doesn't exist in the database, return an error message
     return res.status(404).send("Short URL not found");
   }
-
   // If the short URL exists, perform the redirect
   const longURL = urlDatabase[shortURL];
   res.redirect(longURL);
@@ -150,23 +149,15 @@ app.post("/login", (req, res) => {
   const email = req.body.username;
   const password = req.body.password;
 
-  let foundUser;
-
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      foundUser = users[userId];
-      break;
-    }
-  }
-
-  if (!foundUser || !bcrypt.compareSync(password, foundUser.password)) {
+  const userId = verifyUser(email, password, users);
+  
+  if (userId) {
+    res.cookie('user_id', userId);
+    res.redirect("/urls");
+  } else {
     return res.status(401).send("Invalid login credentials");
   }
-
-  // Login successful: Set cookie and redirect
-  res.cookie('user_id', foundUser.id);
-  res.redirect("/urls");
-});
+})
 
 
 
