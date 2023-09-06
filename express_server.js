@@ -1,28 +1,16 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const { urlDatabase, users } = require("./localdatabase.js");
+const { generateRandomString } = require("./helper.js");
 const app = express();
 const PORT = 8080; // default port 808
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
-// generating random id
-function generateRandomString() {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-
-  for (let i = 0; i < 6; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    result += characters.charAt(randomIndex);
-  }
-
-  return result;
-}
 app.get("/", (req, res) => {
   const userId = req.cookies['user_id'];
-
-  // Check if user is logged in
+    // Check if user is logged in
   if (users[userId]) {
     // User is logged in, redirect to /urls
     res.redirect("/urls");
