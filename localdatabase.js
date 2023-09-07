@@ -1,11 +1,6 @@
 const bcrypt = require("bcryptjs");
 const hashedPassword1 = bcrypt.hashSync("purple-monkey-dinosaur", 10);
 const hashedPassword2 = bcrypt.hashSync("dishwasher-funk", 10);
-const urlDatabase = {
-    "b2xVn2": "http://www.lighthouselabs.ca",
-    "9sm5xK": "http://www.google.com"
-};
-
 const users = {
     userRandomID: {
         id: "userRandomID",
@@ -18,5 +13,10 @@ const users = {
         password: hashedPassword2,
     },
 };
+
+const urlDatabase = {
+    "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
+    "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID" }
+  };
 
 module.exports = { urlDatabase, users };
