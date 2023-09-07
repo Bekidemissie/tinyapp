@@ -1,7 +1,7 @@
 const express = require("express");
 const { urlDatabase, users } = require("./localdatabase.js");
 const bcrypt = require("bcryptjs");
-const { generateRandomString,  verifyUser, findUserByEmail } = require("./helper.js");
+const { generateRandomString, verifyUser, findUserByEmail } = require("./helper.js");
 const app = express();
 const PORT = 8080; // default port 808
 app.set("view engine", "ejs");
@@ -13,6 +13,7 @@ app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }));
+
 app.get("/", (req, res) => {
   const userId = req.cookies.user_id;
   // Check if user is logged in
@@ -24,27 +25,30 @@ app.get("/", (req, res) => {
     res.redirect("/login");
   }
 });
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
+
 app.get("/urls", (req, res) => {
   const userId = req.cookies.user_id;
   if (userId) {
     const userURLs = {};
-      for (const id in urlDatabase) {
-        if (urlDatabase[id].userID === userId) {
-          userURLs[id] = urlDatabase[id];
-        }
+    for (const id in urlDatabase) {
+      if (urlDatabase[id].userID === userId) {
+        userURLs[id] = urlDatabase[id];
       }
-    
+    }
+
     const templateVars = { urls: userURLs, user: users[userId] };
     res.render("urls_index", templateVars);
   }
   else {
     res.send("<html><body>Please login frist before access </b></body></html>\n");
   }
-  
+
 });
+
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies['user_id'];
   const templateVars = {
@@ -57,6 +61,7 @@ app.get("/urls/new", (req, res) => {
     res.redirect("/login");
   }
 });
+
 app.get("/urls/:id", (req, res) => {
   const urlID = req.params.id;
   const userId = req.cookies.user_id;
@@ -64,7 +69,7 @@ app.get("/urls/:id", (req, res) => {
   if (!userId) {
     return res.status(401).send("<html><body>Please login first before accessing this URL.</body></html>");
   }
-// Check if URL exists
+  // Check if URL exists
   if (!urlDatabase[urlID]) {
     return res.status(404).send("<html><body>URL not found.</body></html>");
   }
@@ -108,10 +113,10 @@ app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const id = generateRandomString();
   const userID = req.cookies.user_id;
-  urlDatabase[id] ={ userID: userID , longURL:longURL};
+  urlDatabase[id] = { userID: userID, longURL: longURL };
   res.redirect(`/urls/${id}`);
 
- });
+});
 app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
 
@@ -120,10 +125,10 @@ app.get("/u/:id", (req, res) => {
     return res.status(404).send("Short URL not found");
   }
   // If the short URL exists, perform the redirect
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 });
- 
+
 //deleteing URL
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
@@ -135,7 +140,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id/update", (req, res) => {
   const EditURL = req.body.longURL;
   const id = req.params.id;
-  urlDatabase[id] = EditURL
+  urlDatabase[id].longURL = EditURL
   res.redirect("/urls");
 
 });
@@ -162,7 +167,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send("Missing email or password");
   }
 
-  
+
   if (findUserByEmail(email, users)) {
     return res.status(400).send("Email already exists. Registration failed.");
   }
@@ -175,12 +180,12 @@ app.post("/register", (req, res) => {
     email,
     password: hashedPassword // Store the hash, not the plain-text password
   };
-  
+
   // Set the user ID as an encrypted cookie
   req.session.user_id = newUserID;
   res.cookie('user_id', newUserID);
   res.redirect("/urls");
- 
+
 });
 // login
 app.get("/login", (req, res) => {
@@ -203,15 +208,17 @@ app.post("/login", (req, res) => {
     return res.status(401).send("Invalid login credentials");
   }
 })
+
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
